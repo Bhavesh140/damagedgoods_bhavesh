@@ -21,18 +21,27 @@ export function GlassPanel({
     <div
       className={cn(
         "relative overflow-hidden",
-        "bg-white/[0.04]", // 4% solid white fill
-        "backdrop-blur-[64px]", // heavy background blur (Effect 1)
-        "shadow-[0_24px_48px_rgba(0,0,0,0.15)]", // depth drop shadow (Effect 2)
-        "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)]", // inside stroke top specular highlight
-        "border border-white/10", // subtle outline
-        intensity === "light" ? "bg-white/[0.02] backdrop-blur-[40px]" : "",
+        
+        // 1. Fake the glass reflection using a gradient instead of a blur
+        intensity === "heavy" 
+          ? "bg-gradient-to-br from-white/[0.08] to-white/[0.03]" 
+          : "bg-gradient-to-br from-white/[0.04] to-white/[0.01]",
+          
+        // 2. Explicitly block blur to prevent the browser rendering bug
+        "backdrop-blur-none", 
+        
+        // 3. Kept your existing premium depth and highlight effects
+        "shadow-[0_24px_48px_rgba(0,0,0,0.15)]", 
+        "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4)]", 
+        "border border-white/10", 
+        
         className
       )}
       {...props}
     >
       {/* Secondary inset glow for extra polish */}
       <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)] rounded-[inherit]" />
+      
       {/* Content wrapper */}
       <div className="relative z-10 size-full">
         {children}

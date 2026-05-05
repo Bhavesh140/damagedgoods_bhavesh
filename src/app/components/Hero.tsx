@@ -21,30 +21,13 @@ export function Hero() {
           FW26 Collection
         </motion.div>
         
-        <motion.h1 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.9 }}
-          className="font-bold tracking-tight text-white mb-6 leading-[1.1] drop-shadow-xl text-[64px]"
-        >
-          TRANSLUCENT <br className="hidden md:block"/> ARMOR
-        </motion.h1>
-        
-        <motion.p 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1.1 }}
-          className="text-lg md:text-xl text-white/80 mb-10 max-w-lg font-light drop-shadow-lg"
-        >
-          Engineered polymers meet technical streetwear. 
-          The liquid glass jacket redefines visibility and elemental protection.
-        </motion.p>
+
         
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.3 }}
-          className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
+          className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-100"
         >
           <button className="group relative flex h-14 items-center justify-center gap-2 overflow-hidden rounded-full bg-white px-8 text-sm font-semibold text-black transition-all hover:scale-105 active:scale-95">
             <span>Shop the Drop</span>
