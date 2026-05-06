@@ -45,9 +45,10 @@ export default function App() {
             className="absolute inset-0 z-10 pointer-events-none"
           >
             <div 
-              className="absolute inset-0 bg-no-repeat bg-cover bg-center"
+              className="absolute inset-0 bg-no-repeat bg-cover"
               style={{ 
                 backgroundImage: `url("${bgImage}")`,
+                backgroundPosition: "center 20%",
                 clipPath: "polygon(0% 0%, 50% 0%, 50% 100%, 0% 100%)"
               }}
             />
@@ -62,9 +63,10 @@ export default function App() {
             className="absolute inset-0 z-10 pointer-events-none"
           >
             <div 
-              className="absolute inset-0 bg-no-repeat bg-cover bg-center"
+              className="absolute inset-0 bg-no-repeat bg-cover"
               style={{ 
                 backgroundImage: `url("${bgImage}")`,
+                backgroundPosition: "center 20%",
                 clipPath: "polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%)"
               }}
             />
@@ -93,3 +95,111 @@ export default function App() {
     </div>
   );
 }
+
+
+
+// import React, { useRef } from "react";
+// import { Navbar } from "./components/Navbar";
+// import { Hero } from "./components/Hero";
+// import { Products } from "./components/Products";
+// import { ScatterReveal } from "./components/ScatterReveal"; // <--- ADDED IMPORT
+// import { motion, useScroll, useTransform } from "motion/react";
+// import bgImage from "../imports/Jacket_homepage_high_pixel.png";
+
+// export default function App() {
+//   // 1. Create a reference specifically for the jacket section
+//   const jacketContainerRef = useRef(null);
+
+//   // 2. Track scroll ONLY while the user is inside the jacket container
+//   const { scrollYProgress: jacketScroll } = useScroll({
+//     target: jacketContainerRef,
+//     offset: ["start start", "end end"]
+//   });
+
+//   // 3. Use 'jacketScroll' instead of global scroll for the split logic
+//   const leftX = useTransform(jacketScroll, [0.05, 0.4], ["0%", "-50vw"]);
+//   const rightX = useTransform(jacketScroll, [0.05, 0.4], ["0%", "50vw"]);
+//   const heroOpacity = useTransform(jacketScroll, [0, 0.1], [1, 0]);
+//   const heroY = useTransform(jacketScroll, [0, 0.1], ["0px", "-50px"]);
+//   const heroScale = useTransform(jacketScroll, [0, 0.1], [1, 0.95]);
+
+//   return (
+//     <div className="bg-[#0a0a0a] text-white selection:bg-white/30 selection:text-white font-sans">
+//       <Navbar />
+      
+//       {/* =========================================
+//           SCENE 1: THE JACKET SPLIT
+//           ========================================= */}
+//       <div ref={jacketContainerRef} className="h-[200vh] sm:h-[220vh] md:h-[250vh] relative z-20">
+        
+//         <div className="sticky top-0 h-screen w-full overflow-hidden">
+          
+//           {/* We replace the Products layer here with a blank black canvas, 
+//               so when the jacket opens, it reveals the dark void right before 
+//               the Scatter animation slides up */}
+//           <div className="absolute inset-0 z-0 bg-[#0a0a0a]" />
+
+//           {/* Left Half */}
+//           <motion.div 
+//             style={{ x: leftX }}
+//             className="absolute inset-0 z-10 pointer-events-none"
+//           >
+//             <div 
+//               className="absolute inset-0 bg-no-repeat bg-cover"
+//               style={{ 
+//                 backgroundImage: `url("${bgImage}")`,
+//                 backgroundPosition: "center 20%",
+//                 clipPath: "polygon(0% 0%, 50% 0%, 50% 100%, 0% 100%)"
+//               }}
+//             />
+//             <div className="absolute inset-y-0 left-[50%] w-8 -ml-8 bg-gradient-to-l from-black/80 to-transparent opacity-80" />
+//             <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 pointer-events-none" />
+//           </motion.div>
+
+//           {/* Right Half */}
+//           <motion.div 
+//             style={{ x: rightX }}
+//             className="absolute inset-0 z-10 pointer-events-none"
+//           >
+//             <div 
+//               className="absolute inset-0 bg-no-repeat bg-cover"
+//               style={{ 
+//                 backgroundImage: `url("${bgImage}")`,
+//                 backgroundPosition: "center 20%",
+//                 clipPath: "polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%)"
+//               }}
+//             />
+//             <div className="absolute inset-y-0 right-[50%] w-8 -mr-8 bg-gradient-to-r from-black/80 to-transparent opacity-80" />
+//             <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 pointer-events-none" />
+//           </motion.div>
+
+//           {/* Hero UI */}
+//           <motion.div 
+//             style={{ opacity: heroOpacity, y: heroY, scale: heroScale }}
+//             className="absolute inset-0 z-20 pointer-events-none"
+//           >
+//             <Hero />
+//           </motion.div>
+
+//         </div>
+//       </div>
+
+//       {/* =========================================
+//           SCENE 2: THE SCATTER REVEAL
+//           ========================================= */}
+//       {/* As the user scrolls past the jacket, this sequence naturally triggers */}
+//       <div className="relative z-30">
+//         <ScatterReveal />
+//       </div>
+
+//       {/* =========================================
+//           SCENE 3: THE CATALOGUE
+//           ========================================= */}
+//       {/* After the cinematic intro, they arrive at the actual product grid */}
+//       <div className="relative z-40 bg-[#12100E]">
+//         <Products scrollProgress={jacketScroll} />
+//       </div>
+      
+//     </div>
+//   );
+// }

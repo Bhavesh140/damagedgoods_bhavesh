@@ -12,38 +12,13 @@ export function Hero() {
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
         className="w-full max-w-2xl flex flex-col items-center text-center"
       >
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
-          className="mb-3 sm:mb-4 inline-flex items-center rounded-full border border-white/20 bg-black/40 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-medium text-white/80 backdrop-blur-md uppercase tracking-widest"
-        >
-          FW26 Collection
-        </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.9 }}
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-4 sm:mb-6 leading-tight"
-        >
-          Redefine Your Style
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 1.1 }}
-          className="text-sm sm:text-base md:text-lg text-white/70 mb-8 sm:mb-10 max-w-lg"
-        >
-          Experience the future of fashion with our liquid glass design aesthetic.
-        </motion.p>
+        {/* FW26 Collection badge and description text removed */}
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.3 }}
-          className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto"
+          transition={{ duration: 0.6, delay: 0.9 }} 
+          className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto mt-80 sm:mt-80"
         >
           <button className="group relative flex h-11 sm:h-12 md:h-14 items-center justify-center gap-2 overflow-hidden rounded-full bg-white px-6 sm:px-8 text-xs sm:text-sm font-semibold text-black transition-all hover:scale-105 active:scale-95">
             <span className="whitespace-nowrap">Shop the Drop</span>
@@ -77,7 +52,7 @@ export function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 2 }}
+        transition={{ duration: 1, delay: 1.2 }} 
         className="absolute bottom-6 sm:bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 sm:gap-2 hidden sm:flex"
       >
         <span className="text-white/50 text-[8px] sm:text-[10px] uppercase tracking-[0.2em]">Scroll</span>
