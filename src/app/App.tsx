@@ -14,7 +14,7 @@
 //   // From 0.1 to 0.5: Jacket slides apart.
 //   const leftX = useTransform(scrollYProgress, [0.05, 0.4], ["0%", "-50vw"]);
 //   const rightX = useTransform(scrollYProgress, [0.05, 0.4], ["0%", "50vw"]);
-  
+
 //   // Fade and slide out the Hero text
 //   const heroOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
 //   const heroY = useTransform(scrollYProgress, [0, 0.1], ["0px", "-50px"]);
@@ -23,16 +23,16 @@
 //   return (
 //     <div className="bg-[#0a0a0a] text-white selection:bg-white/30 selection:text-white font-sans">
 //       <Navbar />
-      
+
 //       {/* 
 //         The Scroll Container 
 //         Setting a large height allows us to use the scrollbar to drive the animation.
 //       */}
 //       <div className="h-[200vh] sm:h-[220vh] md:h-[250vh] relative">
-        
+
 //         {/* Sticky section that holds the visuals in place while scrolling the 250vh */}
 //         <div className="sticky top-0 h-screen w-full overflow-hidden">
-          
+
 //           {/* Layer 1 (Bottom): The Revealed Content (Products) */}
 //           <div className="absolute inset-0 z-0 bg-[#0a0a0a] overflow-y-auto custom-scrollbar">
 //             <Products scrollProgress={scrollYProgress} />
@@ -91,7 +91,7 @@
 
 //         </div>
 //       </div>
-      
+
 //     </div>
 //   );
 // }
@@ -129,14 +129,14 @@
 //   return (
 //     <div className="bg-[#0a0a0a] text-white selection:bg-white/30 selection:text-white font-sans">
 //       <Navbar />
-      
+
 //       {/* =========================================
 //           SCENE 1: THE JACKET SPLIT
 //           ========================================= */}
 //       <div ref={jacketContainerRef} className="h-[200vh] sm:h-[220vh] md:h-[250vh] relative z-20">
-        
+
 //         <div className="sticky top-0 h-screen w-full overflow-hidden">
-          
+
 //           {/* We replace the Products layer here with a blank black canvas, 
 //               so when the jacket opens, it reveals the dark void right before 
 //               the Scatter animation slides up */}
@@ -202,7 +202,7 @@
 //       <div className="relative z-40 bg-[#12100E]">
 //         <Products scrollProgress={jacketScroll} />
 //       </div>
-      
+
 //     </div>
 //   );
 // }
@@ -230,7 +230,7 @@
 //   // 2. TIMELINE: The jacket opens between 0% and 25% of the scroll
 //   const leftX = useTransform(scrollYProgress, [0, 0.25], ["0%", "-50vw"]);
 //   const rightX = useTransform(scrollYProgress, [0, 0.25], ["0%", "50vw"]);
-  
+
 //   // Hero fades out super early
 //   const heroOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
 //   const heroY = useTransform(scrollYProgress, [0, 0.1], ["0px", "-50px"]);
@@ -240,10 +240,10 @@
 //   return (
 //     <div className="bg-[#0a0a0a] text-white selection:bg-white/30 selection:text-white font-sans">
 //       <Navbar />
-      
+
 //       {/* 400vh gives the user enough scroll distance to trigger both animations comfortably */}
 //       <div ref={containerRef} className="h-[400vh] relative z-20">
-        
+
 //         {/* THIS is the single screen that pins to the window */}
 //         <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#0a0a0a]">
 
@@ -285,7 +285,7 @@
 //           >
 //             <Hero />
 //           </motion.div>
-          
+
 //         </div>
 //       </div>
 
@@ -293,7 +293,7 @@
 //       <div className="relative z-40 bg-[#12100E]">
 //         <Products scrollProgress={scrollYProgress} />
 //       </div>
-      
+
 //     </div>
 //   );
 // }
@@ -305,12 +305,22 @@ import React, { useState } from "react";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { Products } from "./components/Products";
-import { Preloader } from "./components/Preloader"; 
+import { Preloader } from "./components/Preloader";
+import { Footer } from "./components/Footer";
+import { ProductPage, type Product } from "./components/ProductPage";
+import { CartPage } from "./components/CartPage";
+import { MenuOverlay } from "./components/MenuOverlay";
+import { ProductTransition } from "./components/ProductTransition";
+import { AnimatePresence } from "motion/react";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import bgImage from "../imports/Jacket_homepage_high_pixel.png";
 
 export default function App() {
   const [phase, setPhase] = useState<"jacket" | "transition" | "products">("jacket");
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [transitioningProduct, setTransitioningProduct] = useState<Product | null>(null);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // 1. THE FIX: We track the global window scroll. This never fails.
   const { scrollYProgress } = useScroll();
@@ -318,9 +328,7 @@ export default function App() {
   // 2. THE TRIGGER: When they scroll past 95% (lowered to 0.95 to account for Safari/Mobile address bars)
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (latest >= 0.95 && phase === "jacket") {
-      // Snap scroll back to 0 instantly so the product page starts perfectly at the top
       window.scrollTo(0, 0);
-      // Fire the automated animation!
       setPhase("transition");
     }
   });
@@ -333,24 +341,31 @@ export default function App() {
   const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
   const heroDisplay = useTransform(scrollYProgress, (v) => v > 0.16 ? "none" : "block");
 
+  const handleProductSelect = (product: Product) => {
+    setTransitioningProduct(product);
+  };
+
   return (
-    // We lock the screen (overflow-hidden) during the automated transition so the user can't break it
     <div className={`bg-[#0a0a0a] text-white selection:bg-white/30 selection:text-white font-sans ${phase === "transition" ? 'h-screen overflow-hidden' : ''}`}>
-      
+
       {/* SCENE 1: THE JACKET SPLIT */}
       {phase === "jacket" && (
         <div className="h-[200vh] relative z-20">
-          <Navbar />
+          <Navbar
+            onSelectProduct={handleProductSelect}
+            onCartClick={() => setIsCartOpen(true)}
+            onMenuClick={() => setIsMenuOpen(true)}
+          />
           <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#0a0a0a]">
-            
+
             <div className="absolute inset-0 z-0 bg-[#0a0a0a]" />
 
             <motion.div style={{ x: leftX }} className="absolute inset-0 z-10 pointer-events-none">
-              <div 
+              <div
                 className="absolute inset-0 bg-no-repeat bg-cover"
-                style={{ 
+                style={{
                   backgroundImage: `url("${bgImage}")`,
-                  backgroundPosition: "center 60%", 
+                  backgroundPosition: "center 25%",
                   clipPath: "polygon(0% 0%, 50% 0%, 50% 100%, 0% 100%)"
                 }}
               />
@@ -358,11 +373,11 @@ export default function App() {
             </motion.div>
 
             <motion.div style={{ x: rightX }} className="absolute inset-0 z-10 pointer-events-none">
-              <div 
+              <div
                 className="absolute inset-0 bg-no-repeat bg-cover"
-                style={{ 
+                style={{
                   backgroundImage: `url("${bgImage}")`,
-                  backgroundPosition: "center 60%", 
+                  backgroundPosition: "center 25%",
                   clipPath: "polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%)"
                 }}
               />
@@ -383,20 +398,64 @@ export default function App() {
 
       {/* SCENE 3: THE CATALOGUE */}
       {(phase === "transition" || phase === "products") && (
-        <div className="relative z-10 pt-24 px-6 md:px-12 bg-[#12100E] min-h-screen">
-          <Navbar />
-          <header className="mb-20 mt-12">
-            <h1 className="text-[12vw] leading-none font-black font-serif tracking-tighter text-white/90 uppercase text-center">
-                Damaged<br/>Goods
+        <div className="relative z-10 h-[100dvh] overflow-y-auto snap-y snap-mandatory bg-[#0a0a0a]">
+          
+          <div className="fixed top-0 left-0 w-full z-50">
+            <Navbar
+              onSelectProduct={handleProductSelect}
+              onCartClick={() => setIsCartOpen(true)}
+              onMenuClick={() => setIsMenuOpen(true)}
+            />
+          </div>
+
+          <header className="h-[100dvh] w-full snap-start flex flex-col items-center justify-center bg-[#12100E] z-0">
+            <h1 className="text-[12vw] leading-none font-black font-serif tracking-tighter text-white/90 uppercase text-center mt-12">
+              Damaged<br />Goods
             </h1>
+            <p className="text-white/40 tracking-widest text-sm uppercase mt-8 font-bold">Scroll to discover</p>
           </header>
-          <main>
-            {/* The single, reliable global scroll is handed off directly to your products layer */}
-            <Products scrollProgress={scrollYProgress} /> 
+          
+          <main className="relative z-10 snap-start">
+            <Products onProductClick={handleProductSelect} />
           </main>
+          
+          <div className="snap-start min-h-[100dvh] bg-[#111111] flex flex-col justify-end z-20">
+            <Footer />
+          </div>
         </div>
       )}
-      
+
+      {/* FULL-PAGE PRODUCT VIEW */}
+      <AnimatePresence>
+        {selectedProduct && (
+          <ProductPage
+            key={selectedProduct.id}
+            product={selectedProduct}
+            onBack={() => setSelectedProduct(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* FULL-PAGE CART VIEW */}
+      <AnimatePresence>
+        {isCartOpen && (
+          <CartPage onClose={() => setIsCartOpen(false)} />
+        )}
+      </AnimatePresence>
+
+      <MenuOverlay isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+
+      {/* PRODUCT TRANSITION OVERLAY */}
+      {transitioningProduct && (
+        <ProductTransition 
+          onReveal={() => {
+            setSelectedProduct(transitioningProduct);
+            window.scrollTo(0, 0);
+          }}
+          onComplete={() => setTransitioningProduct(null)}
+        />
+      )}
+
     </div>
   );
 }
