@@ -8,3 +8,13 @@ build/
 .env.*.local
 package-lock.json
 yarn.lock
+outfit.hellohello.is.har
+outfit_extracted.html
+*.cjs
+*.js
+!src/**/*.js
+!vite.config.js
+*.png
+!src/**/*.png
+videos/
+

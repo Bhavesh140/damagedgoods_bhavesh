@@ -1,0 +1,203 @@
+WEEK 1: FOUNDATION, ARCHITECTURE & DESIGN
+Day 1: Core Repository Setup
+
+[DevOps] Initialize Next.js 15 App Router: Setup with TypeScript, Tailwind, and ESLint.
+
+[DevOps] Git Setup: Branch protection rules on main (require 1 PR approval).
+
+[DevOps] Environment: Create .env.local template with empty variables for DB, Auth, and Razorpay.
+
+[Frontend] Path Aliases: Configure tsconfig.json for clean imports (e.g., @/components, @/imports).
+
+Day 2: State & Animation Infrastructure
+
+[Frontend] Zustand Initialization: Create src/store/useCartStore.ts and useUIStore.ts.
+
+[Frontend] Framer Motion Provider: Wrap the root layout in <AnimatePresence> for page transitions.
+
+[Frontend] Global Scroll Context: Create a master useScroll hook at the top level so child components (like the Jacket and Scatter Reveal) can read the exact same scroll physics.
+
+Day 3: Luxury Design System
+
+[Design] ShadCN Initialization: Install and configure base components (Button, Sheet, Dialog, Input).
+
+[Design] Typography & Colors: Add custom fonts (Serif/Sans) to tailwind.config.ts. Define Deep Onyx #0a0a0a and Off-White #f3f3f3.
+
+[Frontend] Liquid Glass Utilities: Create reusable CSS classes for the text stroke, mix-blend-color-dodge, and drop-shadows used in your preloader.
+
+Day 4: Global Layout & Stacking Context
+
+[Frontend] Navbar: Build responsive header. Must be transparent at top of page, and blur/frost when scrolled.
+
+[Frontend] Mobile Menu: Build full-screen slide-out menu with stagger animations for links.
+
+[Architecture] Z-Index Master Document: Define strict z-index rules (e.g., Preloader: 50, Navbar: 40, ScatterReveal: 30, Background: 0).
+
+Day 5: High-Performance Image Pipeline
+
+[Backend] Cloudinary SDK: Install and configure Cloudinary.
+
+[Frontend] <ImageWithFallback/> Component: Build a custom image wrapper that automatically requests .webp formats, lazy-loads, and shows a blurred placeholder while loading.
+
+Day 6: Cinematic Intro Sequence (The "Wow" Factor)
+
+[Frontend] Automated Preloader: Implement the 0-100 counter and "Pop and Stack" 3D card animation.
+
+[Frontend] Split Jacket Hero: Implement the scroll-driven jacket opening.
+
+[Frontend] Sequence Handoff: Use useMotionValueEvent to perfectly time the handoff from the jacket opening to the preloader wiping up.
+
+Day 7: Physics & Frame Rate Tuning
+
+[Frontend] 60fps Audit: Check animations on a physical mobile device.
+
+[Frontend] Safari Address Bar Fix: Ensure 100vh doesn't glitch when mobile browser address bars shrink/grow (use dvh or adjust scroll triggers).
+
+WEEK 2: DATABASE, IDENTITY & SECURITY
+Day 8: Database Provisioning
+
+[Database] PostgreSQL Setup: Provision DB (Vercel or Supabase).
+
+[Database] Prisma Init: Connect Prisma to the database and generate initial client.
+
+Day 9: Schema Design & Vector Prep
+
+[Database] Core Models: Write Prisma schemas for User, Account, Session, Product, Variant (Size/Color), Order, OrderItem.
+
+[Database] Advanced Schema: Add JSONB column to User for progressive profiling.
+
+[Database] Migration: Add CREATE EXTENSION IF NOT EXISTS vector; to the raw SQL migration for future AI features.
+
+Day 10: Native Authentication
+
+[Backend] Better Auth / Auth.js: Install and configure the core auth handler.
+
+[Frontend] Auth UI: Build premium Login/Register forms with ShadCN inputs.
+
+[Security] Password Hashing: Ensure bcrypt/argon2 is implemented for email/password signups.
+
+Day 11: Social Identity
+
+[DevOps] OAuth Keys: Generate Client IDs/Secrets for Google and Apple.
+
+[Backend] Auth Providers: Add Google and Apple providers to Auth config.
+
+[Database] Account Linking: Ensure if a user signs up with Email, and later clicks "Google" with the same email, the accounts merge gracefully.
+
+Day 12: Security & Middleware
+
+[Backend] Next.js Middleware: Create middleware.ts to block unauthenticated users from /account and /admin routes.
+
+[Backend] Rate Limiting: Add basic rate-limiting to auth and checkout API routes.
+
+[Backend] Zod Validation: Create strict Zod schemas for all API incoming payloads (prevent SQL injection/bad data).
+
+Day 13: Customer Dashboard
+
+[Frontend] Profile UI: Build the /account page layout.
+
+[Backend] Server Actions: Build actions for users to update their name, phone, and default shipping address.
+
+Day 14: Database Seeding (Crucial)
+
+[Backend] seed.ts Script: Write a script to wipe the DB and insert 20 high-quality dummy products (jackets, tees, accessories) with real Cloudinary URLs, prices, and stock counts.
+
+WEEK 3: COMMERCE ENGINE & SHOPPING
+Day 15: Product Data Fetching
+
+[Backend] Product API: Create Server Actions to fetch products. Include logic to fetch related products based on tags/categories.
+
+Day 16: Product Listing Page (PLP)
+
+[Frontend] Catalog Grid: Build the /shop page with a masonry or strict grid layout.
+
+[Frontend] Filters: Implement client-side URL search params for filtering by category, price, and sorting (Newest, High-Low).
+
+Day 17: Product Details Page (PDP)
+
+[Frontend] Image Gallery: Build sticky image gallery on the left, scrollable product details on the right.
+
+[Frontend] Variant Selector: Build size/color selectors. Must disable sizes where stock === 0.
+
+Day 18: Instant Search Overlay
+
+[Frontend] Search UI: Build full-screen blurred search overlay.
+
+[Backend] Debounced Query: Implement a custom hook to wait 300ms after the user stops typing before querying the database.
+
+Day 19: Optimistic Cart Architecture
+
+[Frontend] Zustand Cart Wire-up: Connect the "Add to Cart" button to useCartStore.
+
+[Frontend] Slide-out Cart: Build the Cart Sheet. Update totals and quantities instantly in the UI.
+
+[Backend] Cart Sync: Write logic to sync the local Zustand cart with the database when the user logs in.
+
+Day 20: Wishlist & Micro-interactions
+
+[Frontend] Heart Toggle: Build animated heart icon (Framer Motion scale spring).
+
+[Backend] Wishlist API: Save liked products to the database profile.
+
+Day 21: End-to-End Commerce QA
+
+[Testing] Flow Check: Verify the journey from Homepage -> Search -> PDP -> Cart -> Checkout button works without a single console error or hydration mismatch.
+
+WEEK 4: PAYMENTS, ADMIN & LAUNCH
+Day 22: Razorpay & Secure Webhooks
+
+[Frontend] Razorpay SDK: Integrate the Razorpay checkout script/modal.
+
+[Backend] Order Creation: Create order in DB as PENDING before opening Razorpay.
+
+[Backend] Webhook Listener: Build /api/webhooks/razorpay to cryptographically verify payment success and update order to PAID.
+
+Day 23: Transactional Messaging
+
+[Backend] Resend Integration: Add API keys.
+
+[Design] React Email: Design a premium, black-and-white HTML email template for "Order Confirmed".
+
+[Backend] Trigger: Fire the email from the Razorpay success webhook.
+
+Day 24: Customer Order History
+
+[Frontend] Orders UI: Build the /account/orders view. Show order status badges (Paid, Processing, Shipped) and item breakdowns.
+
+Day 25: Admin Command Center Shell
+
+[Backend] RBAC: Update middleware to strictly require role === 'ADMIN' for /admin routes.
+
+[Frontend] Admin Layout: Build a dense, desktop-optimized sidebar layout for the owner dashboard.
+
+Day 26: Admin - Product Management
+
+[Frontend] Product Forms: Build forms to Create/Edit products.
+
+[Backend] Cloudinary Widget: Integrate direct-to-Cloudinary upload widget so owners can easily add product images from the browser.
+
+Day 27: Admin - Order Fulfillment
+
+[Frontend] Orders Table: Build a data table (ShadCN) of all incoming orders.
+
+[Backend] Fulfillment Action: Build Server Action to input a tracking number, change status to SHIPPED, and trigger the shipping confirmation email.
+
+Day 28: Logging & Analytics
+
+[Frontend] Dashboard Stats: Aggregate DB data to show "Total Revenue," "Orders this Month," and "Low Stock Alerts."
+
+[DevOps] Error Tracking: Install Sentry or Vercel Analytics to catch bugs automatically.
+
+Day 29: Production Deploy & Environment
+
+[DevOps] Vercel Deploy: Push to production.
+
+[DevOps] Environment Audit: Ensure Razorpay is in Live mode, correct production DB URL is set, and Auth URLs point to your real domain (e.g., damagedgoods.com).
+
+Day 30: Launch & Live QA
+
+[Testing] Live Transaction: Buy a $1 item using a real credit card to ensure Webhooks and Emails fire in production. (Refund it immediately in Razorpay).
+
+[Testing] Lighthouse: Run Chrome Lighthouse audit for SEO and Accessibility scores.
+
+[Launch] Market the MVP.

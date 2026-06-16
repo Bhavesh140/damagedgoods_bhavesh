@@ -299,133 +299,169 @@
 // }
 
 
-
-
 import React, { useState } from "react";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { Products } from "./components/Products";
-import { Preloader } from "./components/Preloader";
 import { Footer } from "./components/Footer";
 import { ProductPage, type Product } from "./components/ProductPage";
 import { CartPage } from "./components/CartPage";
 import { MenuOverlay } from "./components/MenuOverlay";
 import { ProductTransition } from "./components/ProductTransition";
+import { ScatterReveal } from "./components/ScatterReveal";
 import { AnimatePresence } from "motion/react";
-import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
+import { motion, useTransform, useMotionValueEvent, useScroll } from "motion/react";
+import { useMasterScroll } from "../store/ScrollContext";
+import { useUIStore } from "../store/useUIStore";
+import { useCartStore } from "../store/useCartStore";
 import bgImage from "../imports/Jacket_homepage_high_pixel.png";
 
 export default function App() {
-  const [phase, setPhase] = useState<"jacket" | "transition" | "products">("jacket");
+  const { isMenuOpen, setIsMenuOpen } = useUIStore();
+  const { isCartOpen, setIsCartOpen } = useCartStore();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [transitioningProduct, setTransitioningProduct] = useState<Product | null>(null);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // 1. THE FIX: We track the global window scroll. This never fails.
-  const { scrollYProgress } = useScroll();
+  const introRef = React.useRef<HTMLDivElement>(null);
+  const productsRef = React.useRef<HTMLDivElement>(null);
 
-  // 2. THE TRIGGER: When they scroll past 95% (lowered to 0.95 to account for Safari/Mobile address bars)
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (latest >= 0.95 && phase === "jacket") {
-      window.scrollTo(0, 0);
-      setPhase("transition");
+  React.useEffect(() => {
+    // Disable browser's automatic scroll restoration on refresh
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    // Always start at the very top for the cinematic experience
+    window.scrollTo(0, 0);
+  }, []);
+
+  const { scrollYProgress: introScroll } = useScroll({
+    target: introRef,
+    offset: ["start start", "end end"]
+  });
+
+  // Animation States
+  const [isScatterTriggered, setIsScatterTriggered] = useState(false);
+  const [isScatterFinished, setIsScatterFinished] = useState(false);
+
+  // Timeline:
+  // 0.0 - 0.8: Jacket Splits (controlled by scroll)
+  // At > 0.85: Scatter animation triggers automatically
+  const leftX = useTransform(introScroll, [0, 0.8], ["0%", "-50vw"]);
+  const rightX = useTransform(introScroll, [0, 0.8], ["0%", "50vw"]);
+  const heroOpacity = useTransform(introScroll, [0, 0.1], [1, 0]);
+  const heroY = useTransform(introScroll, [0, 0.1], ["0px", "-50px"]);
+  const heroScale = useTransform(introScroll, [0, 0.1], [1, 0.95]);
+  const heroDisplay = useTransform(introScroll, (v) => v > 0.1 ? "none" : "block");
+
+  // Watch scroll to trigger the automatic scatter animation
+  useMotionValueEvent(introScroll, "change", (latest) => {
+    const previous = introScroll.getPrevious() || 0;
+    // Only trigger when actively scrolling downwards past 0.85
+    if (latest > 0.85 && latest > previous && !isScatterTriggered) {
+      setIsScatterTriggered(true);
+      // Lock scroll while the cinematic animation plays
+      document.body.style.overflow = "hidden";
     }
   });
 
-  // Jacket animations (Takes place between 0% and 80% of the scroll)
-  const leftX = useTransform(scrollYProgress, [0, 0.8], ["0%", "-50vw"]);
-  const rightX = useTransform(scrollYProgress, [0, 0.8], ["0%", "50vw"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.15], ["0px", "-50px"]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
-  const heroDisplay = useTransform(scrollYProgress, (v) => v > 0.16 ? "none" : "block");
-
+  const handleScatterComplete = React.useCallback(() => {
+    setIsScatterFinished(true);
+    // Unlock scroll
+    document.body.style.overflow = "auto";
+    // Delay scroll to allow layoutId animation to finish perfectly
+    setTimeout(() => {
+      if (productsRef.current) {
+        productsRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 800);
+  }, []);
+  
   const handleProductSelect = (product: Product) => {
     setTransitioningProduct(product);
   };
 
   return (
-    <div className={`bg-[#0a0a0a] text-white selection:bg-white/30 selection:text-white font-sans ${phase === "transition" ? 'h-screen overflow-hidden' : ''}`}>
+    <div className="bg-[#0a0a0a] text-white selection:bg-white/30 selection:text-white font-sans relative">
+      {/* FIXED NAVBAR */}
+      <div className="fixed top-0 left-0 w-full z-50">
+        <Navbar
+          onSelectProduct={handleProductSelect}
+          onCartClick={() => setIsCartOpen(true)}
+          onMenuClick={() => setIsMenuOpen(true)}
+          showLogo={isScatterFinished}
+        />
+      </div>
 
-      {/* SCENE 1: THE JACKET SPLIT */}
-      {phase === "jacket" && (
-        <div className="h-[200vh] relative z-20">
-          <Navbar
-            onSelectProduct={handleProductSelect}
-            onCartClick={() => setIsCartOpen(true)}
-            onMenuClick={() => setIsMenuOpen(true)}
-          />
-          <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#0a0a0a]">
-
-            <div className="absolute inset-0 z-0 bg-[#0a0a0a]" />
-
-            <motion.div style={{ x: leftX }} className="absolute inset-0 z-10 pointer-events-none">
-              <div
-                className="absolute inset-0 bg-no-repeat bg-cover"
-                style={{
-                  backgroundImage: `url("${bgImage}")`,
-                  backgroundPosition: "center 25%",
-                  clipPath: "polygon(0% 0%, 50% 0%, 50% 100%, 0% 100%)"
-                }}
-              />
-              <div className="absolute inset-y-0 left-[50%] w-8 -ml-8 bg-gradient-to-l from-black/80 to-transparent opacity-80" />
-            </motion.div>
-
-            <motion.div style={{ x: rightX }} className="absolute inset-0 z-10 pointer-events-none">
-              <div
-                className="absolute inset-0 bg-no-repeat bg-cover"
-                style={{
-                  backgroundImage: `url("${bgImage}")`,
-                  backgroundPosition: "center 25%",
-                  clipPath: "polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%)"
-                }}
-              />
-              <div className="absolute inset-y-0 right-[50%] w-8 -mr-8 bg-gradient-to-r from-black/80 to-transparent opacity-80" />
-            </motion.div>
-
-            <motion.div style={{ opacity: heroOpacity, y: heroY, scale: heroScale, display: heroDisplay }} className="absolute inset-0 z-20 pointer-events-none">
-              <Hero />
-            </motion.div>
-          </div>
-        </div>
-      )}
-
-      {/* SCENE 2: THE AUTOMATED VIDEO TRANSITION OVERLAY */}
-      {phase === "transition" && (
-        <Preloader onComplete={() => setPhase("products")} />
-      )}
-
-      {/* SCENE 3: THE CATALOGUE */}
-      {(phase === "transition" || phase === "products") && (
-        <div className="relative z-10 h-[100dvh] overflow-y-auto snap-y snap-mandatory bg-[#0a0a0a]">
+      {/* MASTER SCROLL CONTAINER (Reduced height since animation is automatic) */}
+      <div ref={introRef} className="h-[200vh] relative z-20">
+        <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#0a0a0a]">
           
-          <div className="fixed top-0 left-0 w-full z-50">
-            <Navbar
-              onSelectProduct={handleProductSelect}
-              onCartClick={() => setIsCartOpen(true)}
-              onMenuClick={() => setIsMenuOpen(true)}
+          {/* LAYER 1: SCATTER REVEAL */}
+          <div className="absolute inset-0 z-10">
+            <AnimatePresence>
+              {!isScatterFinished && (
+                <ScatterReveal 
+                  isTriggered={isScatterTriggered} 
+                  onAnimationComplete={handleScatterComplete} 
+                />
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* LAYER 2: THE JACKET */}
+          <motion.div style={{ x: leftX }} className="absolute inset-0 z-20 pointer-events-none">
+            <div
+              className="absolute inset-0 bg-no-repeat bg-cover"
+              style={{
+                backgroundImage: `url("${bgImage}")`,
+                backgroundPosition: "center 25%",
+                clipPath: "polygon(0% 0%, 50% 0%, 50% 100%, 0% 100%)"
+              }}
             />
-          </div>
+            <div className="absolute inset-y-0 left-[50%] w-8 -ml-8 bg-gradient-to-l from-black/80 to-transparent opacity-80" />
+          </motion.div>
 
-          <header className="h-[100dvh] w-full snap-start flex flex-col items-center justify-center bg-[#12100E] z-0">
-            <h1 className="text-[12vw] leading-none font-black font-serif tracking-tighter text-white/90 uppercase text-center mt-12">
-              Damaged<br />Goods
-            </h1>
-            <p className="text-white/40 tracking-widest text-sm uppercase mt-8 font-bold">Scroll to discover</p>
-          </header>
-          
-          <main className="relative z-10 snap-start">
-            <Products onProductClick={handleProductSelect} />
-          </main>
-          
-          <div className="snap-start min-h-[100dvh] bg-[#111111] flex flex-col justify-end z-20">
-            <Footer />
-          </div>
+          <motion.div style={{ x: rightX }} className="absolute inset-0 z-20 pointer-events-none">
+            <div
+              className="absolute inset-0 bg-no-repeat bg-cover"
+              style={{
+                backgroundImage: `url("${bgImage}")`,
+                backgroundPosition: "center 25%",
+                clipPath: "polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%)"
+              }}
+            />
+            <div className="absolute inset-y-0 right-[50%] w-8 -mr-8 bg-gradient-to-r from-black/80 to-transparent opacity-80" />
+          </motion.div>
+
+          <motion.div style={{ opacity: heroOpacity, y: heroY, scale: heroScale, display: heroDisplay }} className="absolute inset-0 z-30 pointer-events-none">
+            <Hero />
+          </motion.div>
         </div>
-      )}
+      </div>
 
-      {/* FULL-PAGE PRODUCT VIEW */}
+      {/* LAYER 3: PRODUCT GRID */}
+      <div ref={productsRef} className="relative z-40 bg-[#0a0a0a]">
+        <div className="w-full flex flex-col items-center justify-center bg-[#0a0a0a] pt-32 pb-12">
+          <h1 className="text-[10vw] leading-none font-black font-serif tracking-tighter uppercase text-center
+            text-transparent bg-clip-text bg-[linear-gradient(135deg,#ff6b6b_0%,#ff0000_25%,#3a0000_50%,#ff4d4d_75%,#1a0000_100%)] 
+            [-webkit-text-stroke:1px_rgba(255,50,50,0.8)] md:[-webkit-text-stroke:2px_rgba(255,50,50,0.9)] 
+            drop-shadow-[0_15px_30px_rgba(255,0,0,0.25)] mix-blend-screen"
+          >
+            Damaged<br />Goods
+          </h1>
+          <p className="text-white/40 tracking-widest text-sm uppercase mt-8 font-bold">Discover</p>
+        </div>
+        
+        <main className="relative z-10 min-h-screen">
+          <Products onProductClick={handleProductSelect} />
+        </main>
+        
+        <div className="bg-[#111111] flex flex-col justify-end z-20">
+          <Footer />
+        </div>
+      </div>
+
+      {/* OVERLAYS */}
       <AnimatePresence>
         {selectedProduct && (
           <ProductPage
@@ -436,7 +472,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* FULL-PAGE CART VIEW */}
       <AnimatePresence>
         {isCartOpen && (
           <CartPage onClose={() => setIsCartOpen(false)} />
@@ -445,7 +480,6 @@ export default function App() {
 
       <MenuOverlay isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-      {/* PRODUCT TRANSITION OVERLAY */}
       {transitioningProduct && (
         <ProductTransition 
           onReveal={() => {

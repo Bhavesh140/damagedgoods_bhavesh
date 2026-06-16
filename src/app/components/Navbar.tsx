@@ -12,9 +12,10 @@ interface NavbarProps {
   onSelectProduct?: (product: Product) => void;
   onCartClick?: () => void;
   onMenuClick?: () => void;
+  showLogo?: boolean;
 }
 
-export function Navbar({ onSearchClick, onSelectProduct, onCartClick, onMenuClick }: NavbarProps) {
+export function Navbar({ onSearchClick, onSelectProduct, onCartClick, onMenuClick, showLogo = true }: NavbarProps) {
   const navLinks = ["Collection", "Drops", "About", "Orders"];
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -120,16 +121,15 @@ export function Navbar({ onSearchClick, onSelectProduct, onCartClick, onMenuClic
                   <Menu className="w-4 sm:w-[18px] h-4 sm:h-[18px] text-white/80 hover:text-white transition-colors" strokeWidth={1.5} />
                 </button>
                 <AnimatePresence mode="wait">
-                  {!isSearchOpen && (
-                    <motion.span
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.15 }}
-                      className="text-white font-bold tracking-[0.15em] sm:tracking-[0.2em] md:tracking-[0.25em] uppercase text-[10px] sm:text-[11px] md:text-[13px] whitespace-nowrap cursor-pointer"
+                  {!isSearchOpen && showLogo && (
+                    <motion.div
+                      layoutId="brand-text"
+                      layout
+                      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                      className="text-white font-bold tracking-[0.15em] sm:tracking-[0.2em] md:tracking-[0.25em] uppercase text-[10px] sm:text-[11px] md:text-[13px] whitespace-nowrap cursor-pointer z-50 relative"
                     >
                       DAMAGED GOODS
-                    </motion.span>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </div>
